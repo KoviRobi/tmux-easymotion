@@ -25,16 +25,18 @@ SMARTSIGN=$(get_tmux_option "@easymotion-smartsign" "false")
 
 tmp_file=$(mktemp -t tmux-easymotion_keystroke-XXXXXXX)
 
-# Execute Python script with environment variables
-tmux bind $(get_tmux_option "@easymotion-key" "s") run-shell "\
-    printf '\x03' > $tmp_file && tmux command-prompt -1 -p 'easymotion:' 'run-shell \"printf %s\\\\n \\\"%1\\\" > $tmp_file\"' \; \
-    neww -d '\
-    TMUX_EASYMOTION_HINTS=$HINTS \
-    TMUX_EASYMOTION_VERTICAL_BORDER=$VERTICAL_BORDER \
-    TMUX_EASYMOTION_HORIZONTAL_BORDER=$HORIZONTAL_BORDER \
-    TMUX_EASYMOTION_USE_CURSES=$USE_CURSES \
-    TMUX_EASYMOTION_DEBUG=$DEBUG \
-    TMUX_EASYMOTION_PERF=$PERF \
-    TMUX_EASYMOTION_CASE_SENSITIVE=$CASE_SENSITIVE \
-    TMUX_EASYMOTION_SMARTSIGN=$SMARTSIGN \
-    $CURRENT_DIR/easymotion.py $tmp_file'"
+for table in $(get_tmux_option "@easymotion-tables" "prefix copy-mode copy-mode-vi"); do
+    # Execute Python script with environment variables
+    tmux bind -T "$table" $(get_tmux_option "@easymotion-key" "s") run-shell "\
+        printf '\x03' > $tmp_file && tmux command-prompt -1 -p 'easymotion:' 'run-shell \"printf %s\\\\n \\\"%1\\\" > $tmp_file\"' \; \
+        neww -d '\
+        TMUX_EASYMOTION_HINTS=$HINTS \
+        TMUX_EASYMOTION_VERTICAL_BORDER=$VERTICAL_BORDER \
+        TMUX_EASYMOTION_HORIZONTAL_BORDER=$HORIZONTAL_BORDER \
+        TMUX_EASYMOTION_USE_CURSES=$USE_CURSES \
+        TMUX_EASYMOTION_DEBUG=$DEBUG \
+        TMUX_EASYMOTION_PERF=$PERF \
+        TMUX_EASYMOTION_CASE_SENSITIVE=$CASE_SENSITIVE \
+        TMUX_EASYMOTION_SMARTSIGN=$SMARTSIGN \
+        $CURRENT_DIR/easymotion.py $tmp_file'"
+done
